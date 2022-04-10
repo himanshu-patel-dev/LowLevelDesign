@@ -1,7 +1,8 @@
 # Singleton Pattern
 
 **Classification**: Creational
-This pattern is used for creation of object. Infact Singleton enfore that class must have only one object. This provide global poiint of access. Also class is reponsible for its one intance. Also provide **lazy** instantiation is object is costly to instantiate or less likely to use.
+
+This pattern is used for creation of object. Infact Singleton enfore that class must have only one object. This provide global point of access. Also class is reponsible for its one intance. Also provide **lazy** instantiation is object is costly to instantiate or less likely to use.
 
 `object.__dict__`  
 A dictionary or other mapping object used to store an object’s (writable) attributes.
