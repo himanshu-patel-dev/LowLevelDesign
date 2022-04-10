@@ -11,7 +11,5 @@ s1 = Singleton.instance()
 s2 = Singleton.instance()
 s1.ans = 10
 
-assert s1 is s2
-assert s1.ans == s2.ans
-
-print("Test Passed")
+print(s1 is s2)
+print(s1.ans == s2.ans)
