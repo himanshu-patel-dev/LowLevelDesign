@@ -3,254 +3,199 @@
 **Classification**: Creational  
 This pattern define an interface for subclass to create an object. But it lets subclass decide which object to create. It is also know as virtual constructor pattern.
 
-First we make a `Abstract Base Class` and then make concrete classes based on this only.
+##  Problem
+Imagine that you’re creating a logistics management application. The first version of your app can only handle transportation by trucks, so the bulk of your code lives inside the `Truck` class.
+
+At present, most of your code is coupled to the `Truck` class. Adding `Ships` into the app would require making changes to the entire codebase. Moreover, if later you decide to add another type of transportation to the app, you will probably need to make all of these changes again.
+
+## Solution
+The Factory Method pattern suggests that you replace direct object construction calls with calls to a special factory method. Objects returned by a factory method are often referred to as **products**. 
+
+For example, both `Truck` and `Ship` classes should implement the `Transport` interface, which declares a method called `deliver`. Each class implements this method differently: `trucks` deliver cargo by land, `ships` deliver cargo by sea. 
+
+The code that uses the factory method (often called the client code) doesn’t see a difference between the actual products returned by various subclasses. The client treats all the products as abstract `Transport`. The client knows that all transport objects are supposed to have the `deliver` method, but exactly how it works isn’t important to the client.
+
+## Pseudocode
+This example illustrates how the Factory Method can be used for creating cross-platform UI elements without coupling the client code to concrete UI classes.
+
+<p style="text-align:center">
+    <img src="../../static/factory_pattern.png"/>
+</p>
+
+For this pattern to work, the base dialog class must work with abstract buttons: a base class or an interface that all concrete buttons follow. This way the dialog’s code remains functional, whichever type of buttons it works with.
+
+Of course, you can apply this approach to other UI elements as well. However, with each new factory method you add to the dialog, you get closer to the Abstract Factory pattern. 
+
+## Applicability
+- Use the Factory Method when you don’t know beforehand the exact types and dependencies of the objects your code should work with.
+    - The Factory Method separates product construction code from the code that actually uses the product. Therefore it’s easier to extend the product construction code independently from the rest of the code.
+- Use the Factory Method when you want to provide users of your library or framework with a way to extend its internal components.
+    - Inheritance is probably the easiest way to extend the default behavior of a library or framework. But how would the framework recognize that your subclass should be used instead of a standard component? The solution is to reduce the code that constructs components across the framework into a single factory method and let anyone override this method in addition to extending the component itself.
+- Use the Factory Method when you want to save system resources by reusing existing objects instead of rebuilding them each time.
+    - You often experience this need when dealing with large, resource-intensive objects such as database connections, file systems, and network resources.
+    - When someone requests an object, the program should look for a free object inside that pool and then return it to the client code. If there are no free objects, the program should create a new one (and add it to the pool).
+    - Probably the most obvious and convenient place where this code could be placed is the constructor of the class whose objects we’re trying to reuse. However, a constructor must always return **new objects** by definition. It can’t return existing instances.
+
+## How to Implement
+1. Make all products follow the same interface. This interface should declare methods that make sense in every product.
+
+2. Add an empty factory method inside the creator class. The return type of the method should match the common product interface.
+
+3. In the creator’s code find all references to product constructors. One by one, replace them with calls to the factory method, while extracting the product creation code into the factory method.
+
+4. You might need to add a temporary parameter to the factory method to control the type of returned product.
+
+5. At this point, the code of the factory method may look pretty ugly. It may have a large `switch` operator that picks which product class to instantiate. But don’t worry, we’ll fix it soon enough.
+
+6. Now, create a set of creator subclasses for each type of product listed in the factory method. Override the factory method in the subclasses and extract the appropriate bits of construction code from the base method.
+
+7. If there are too many product types and it doesn’t make sense to create subclasses for all of them, you can reuse the control parameter from the base class in subclasses.
+
+8. For instance, imagine that you have the following hierarchy of classes: the base `Mail` class with a couple of subclasses: `AirMail` and `GroundMail`; the `Transport` classes are `Plane`, `Truck` and `Train`. While the `AirMail` class only uses `Plane` objects, `GroundMail` may work with both `Truck` and `Train` objects. The client code can pass an argument to the factory method of the `GroundMail` class to control which product it wants to receive.
+
+9. If, after all of the extractions, the base factory method has become empty, you can make it abstract. If there’s something left, you can make it a default behavior of the method.
+
+## Pros and Cons
+
+### Pros
+1. You avoid tight coupling between the creator and the concrete products.
+2. Single Responsibility Principle. You can move the product creation code into one place in the program, making the code easier to support.
+3. Open/Closed Principle. You can introduce new types of products into the program without breaking existing client code.
+
+### Cons
+1. The code may become more complicated since you need to introduce a lot of new subclasses to implement the pattern. The best case scenario is when you’re introducing the pattern into an existing hierarchy of creator classes.
+
+## Implementation
 
 ```python
-# abstract_auto.py
+# abstract_creator.py
+
 from abc import ABC, abstractmethod
 
 
-class AbstractAuto(ABC):
+class Creator(ABC):
+	"""
+	The Creator class declares the factory method that is supposed to return an
+	object of a Product class. The Creator's subclasses usually provide the
+	implementation of this method.
+	"""
+	
+	@abstractmethod
+	def factory_method(self):
+		"""
+		Note that the Creator may also provide some default implementation of
+		the factory method.
+		"""
+		pass
 
-    @abstractmethod
-    def start(self):
-        pass
+	def some_operation(self) -> str:
+		"""
+		Also note that, despite its name, the Creator's primary responsibility
+		is not creating products. Usually, it contains some core business logic
+		that relies on Product objects, returned by the factory method.
+		Subclasses can indirectly change that business logic by overriding the
+		factory method and returning a different type of product from it.
+		"""
 
-    @abstractmethod
-    def stop(self):
-        pass
+		# Call the factory method to create a Product object.
+		product = self.factory_method()
+
+		# Now, use the product.
+		result = f"Creator: The same creator's code has just worked with {product.operation()}"
+
+		return result
 ```
 
 ```python
-# implement all concrete class whome we want to instantiate
+# abstract_product.py
 
-from .abstract_auto import AbstractAuto
-
-
-class Duster(AbstractAuto):
-    def start(self):
-        print("Duster started")
-
-    def stop(self):
-        print("Duster stopped")
-
-class Kia(AbstractAuto):
-    def start(self):
-        print("Kia started")
-
-    def stop(self):
-        print("Kia stopped")
-
-
-class Nano(AbstractAuto):
-    def start(self):
-        print("Nano started")
-
-    def stop(self):
-        print("Nano stopped")
-
-class Nexon(AbstractAuto):
-    def start(self):
-        print("Nexon started")
-
-    def stop(self):
-        print("Nexon stopped")
-
-
-class NullCar(AbstractAuto):
-    def __init__(self, carname):
-        self._carname = carname
-
-    def start(self):
-        print('Unknown car "%s".' % self._carname)
-
-    def stop(self):
-        pass
-```
-
-To access all the class we declared here in `autos` package we need to bring all those classes to `__init__.py` file as this is the only file which gets loaded into module which calls `import autos`. Also notice the way we called adjacent files using a period `.` before the name of file. This is not done when we import the neighbout module as library for instantiation.
-
-```python
-from .duster import Duster
-from .nano import Nano
-from .kia import Kia
-from .nexon import Nexon
-from .abstract_auto import AbstractAuto
-```
-
-## Simple Factory
-
-Now is the time when we make a factory which takes a class name as string and return its object. To do this we basically make a mapping for each classname and its class. When called with a name as string we return corresponding classes object.
-
-```python
-from inspect import isclass, isabstract, getmembers
-import autos
-
-
-def isconcrete(obj):
-    return isclass(obj) and not isabstract(obj)
-
-
-class AutoFactory:
-    vehicles = {}      # { car model name: class for the car}
-
-    def __init__(self):
-        self.load_autos()
-
-    def load_autos(self):
-        classes = getmembers(autos, isconcrete)
-
-        for name, _type in classes:
-            if isclass(_type) and issubclass(_type, autos.AbstractAuto):
-                self.vehicles.update([[name, _type]])
-
-    def create_instance(self, carname):
-        if carname in self.vehicles:
-            return self.vehicles[carname]()
-        return autos.NullCar(carname)
-```
-
-Python main file for execution.
-
-```python
-from autoFactory import AutoFactory
-
-factory = AutoFactory()
-
-for carname in ['Nano', 'Nexon', 'Kia', 'Duster']:
-    car = factory.create_instance(carname)
-    car.start()
-    car.stop()
-```
-
-## Classic Factory Pattern
-
-4 Components
-
-- **Abstract Product** : Abstract product class which state what to implement
-- **Concrete Product** : Concrete product classes which implements what is abstract
-- **Abstract Factory** : Abstract factory which declare create product method
-- **Concrete Factory** : Implementes the create product method
-
-1. Update the abstract base class for product (vehicle)
-
-```python
 from abc import ABC, abstractmethod
 
-
-class AbstractAuto(ABC):
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        self._name = name
-
-    @abstractmethod
-    def start(self):
-        pass
-
-    @abstractmethod
-    def stop(self):
-        pass
+class Product(ABC):
+	"""
+    The Product interface declares the operations that all concrete products
+    must implement.
+    """
+	
+	@abstractmethod
+	def operations(self):
+		pass
 ```
-
-2. Implement concrete product classes
 
 ```python
-from .abstract_auto import AbstractAuto
+# concrete_product.py
+
+"""
+Concrete Products provide various implementations of the Product interface.
+"""
+from abstract_product import Product
 
 
-class Kia(AbstractAuto):
-    # init method get's inherited anyway
-    # def __init__(self, name):
-    #     self.name = name
+class ConcreteProduct1(Product):
+    def operation(self) -> str:
+        return "{Result of the ConcreteProduct1}"
 
-    def start(self):
-        print(f"{self.name} started")
 
-    def stop(self):
-        print(f"{self.name} stopped")
+class ConcreteProduct2(Product):
+    def operation(self) -> str:
+        return "{Result of the ConcreteProduct2}"
+
 ```
-
-3. Make a abstract factory class
 
 ```python
-from abc import ABC, abstractmethod
+# concrete_creator.py
+
+"""
+Concrete Creators override the factory method in order to change the resulting
+product's type.
+"""
+
+from abstract_creator import Creator
+from abstract_product import Product
+from concrete_product import ConcreteProduct1, ConcreteProduct2
 
 
-class AbsFactory(ABC):
+class ConcreteCreator1(Creator):
+	"""
+	Note that the signature of the method still uses the abstract product type,
+	even though the concrete product is actually returned from the method. This
+	way the Creator can stay independent of concrete product classes.
+	"""
 
-    @abstractmethod
-    def create_auto(self):
-        pass
+	def factory_method(self) -> Product:
+		return ConcreteProduct1()
+
+
+class ConcreteCreator2(Creator):
+	def factory_method(self) -> Product:
+		return ConcreteProduct2()
 ```
-
-4. Implement abstract factory class and all its methods
 
 ```python
-from .abstract_factory import AbsFactory
-from autos.kia import Kia
+# main.py
+
+from abstract_creator import Creator
+from concrete_creator import ConcreteCreator1, ConcreteCreator2
 
 
-class KiaFactory(AbsFactory):
+def client_code(creator: Creator) -> None:
+	"""
+	The client code works with an instance of a concrete creator, albeit through
+	its base interface. As long as the client keeps working with the creator via
+	the base interface, you can pass it any creator's subclass.
+	"""
 
-    def create_auto(self):
-        self.kia = kia = Kia()
-        kia.name = 'Kia SUV'
-        return kia
+	print(f"Client: I'm not aware of the creator's class, but it still works.\n"
+		  f"{creator.some_operation()}", end="")
+
+
+if __name__ == "__main__":
+    print("App: Launched with the ConcreteCreator1.")
+    client_code(ConcreteCreator1())
+    print("\n")
+
+    print("App: Launched with the ConcreteCreator2.")
+    client_code(ConcreteCreator2())
 ```
 
-5. Now we need a loader which can load specific class when requested
-
-```python
-from importlib import import_module
-from inspect import getmembers, isabstract, isclass
-from .abstract_factory import AbsFactory
-
-
-def isconcrete(obj):
-    return isclass(obj) and not isabstract(obj)
-
-
-def load_factory(factory_name):
-    try:
-        factory_module = import_module('.' + factory_name, 'factories')
-    except ImportError:
-        factory_module = import_module('.null_factory', 'factories')
-
-    classes = getmembers(factory_module, isconcrete)
-
-    for name, _class in classes:
-        if issubclass(_class, AbsFactory):
-            return _class()
-```
-
-6. Client side
-
-```python
-from factories import loader
-
-for factory_name in [
-        "kia_factory",
-        "nano_factory",
-        "nexon_factory",
-        "null_factory"
-]:
-
-    factory = loader.load_factory(factory_name)
-    car = factory.create_auto()
-
-    car.start()
-    car.stop()
-```
-
-## Summary
-
-- Factory method encapsulate instantiation. We no longer need to access classes to instantiate objects instead we call a factory method to do it.
-- Support dependency inversion principle. As all concrete product or concrete factories we produced are dependent on abstraction and are not tightly couples with any parent class.
-- Client are no longer dependent on implementaton. They don't need to know name of class methods it include as every class is derived form a abstract product and abstract they have some method which are same for all use cases. Also client can access classes via its factory.
-- Simple Factory Pattern: Here we have only one factory and we use it to get instance of class we need. Just one factory with several classes.
-- Classical Factory Pattern: Here we have several factories one for each class. First we get an instance of factory and then use it to get instance we need.
+Here although `__main__` provide instance of `ConcreteCreator1` and `ConcreteCreator2` to the client code but that input can be anything like a string or number or boolean, basically for decision making. Also notice the code of client is intact and need not be changed in order to use different product. Also client just know the methods available on abstract creator so that it will remain intact with different creators.

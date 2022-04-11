@@ -8,8 +8,8 @@ We need design patterns to ensure that out work is **consistent, reliable** and 
 Creational patterns provide object creation mechanisms that increase flexibility and reuse of existing code.
 
 1. [Singleton](Singleton/README.md)
-2. Prototype
-3. Factory Method
+2. Prototype - [External Link](https://refactoring.guru/design-patterns/prototype)
+3. [Factory Method](FactoryPattern/README.md)
 4. Builder
 5. Abstract Factory
 
