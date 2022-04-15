@@ -11,7 +11,7 @@ Creational patterns provide object creation mechanisms that increase flexibility
 2. Prototype - [External Link](https://refactoring.guru/design-patterns/prototype)
 3. [Factory Method](FactoryPattern/README.md)
 4. Builder
-5. Abstract Factory
+5. [Abstract Factory](AbstractFactoryPattern/README.md)
 
 ## Structural Patterns
 Structural patterns explain how to assemble objects and classes into larger structures, while keeping these structures flexible and efficient.
@@ -23,7 +23,6 @@ Structural patterns explain how to assemble objects and classes into larger stru
 5. Facade
 6. Flyweight
 7. Proxy
-
 
 ## Behavioral Patterns
 Behavioral patterns take care of effective communication and the assignment of responsibilities between objects.
