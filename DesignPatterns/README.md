@@ -37,3 +37,5 @@ Behavioral patterns take care of effective communication and the assignment of r
 8. Observer
 9. Strategy
 10. Visitor
+
+Thanks to Refactoring Guru Website: [Reach out to them for more](https://refactoring.guru/design-patterns/catalog)
