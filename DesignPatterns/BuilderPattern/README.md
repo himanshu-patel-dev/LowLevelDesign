@@ -3,385 +3,222 @@
 **Classification**: Creational  
 This pattern is used for creation of object. The intent of the Builder design pattern is to separate the construction of a complex object from its representation. By doing so, the same construction process can create different representations.  
 
-The Builder design pattern solves problems like:
+## Problem
+Imagine a complex object that requires laborious, step-by-step initialization of many fields and nested objects. Such initialization code is usually buried inside a monstrous constructor with lots of parameters. Or even worse: scattered all over the client code.
 
-- How can a class (the same construction process) create different representations of a complex object?
-- How can a class that includes creating a complex object be simplified?
+## Solution
+The Builder pattern suggests that you extract the object construction code out of its own class and move it to separate objects called `builders`.
 
-## Regular Class
+#### Director
+You can go further and extract a series of calls to the builder steps you use to construct a product into a separate class called `director`. The director class defines the order in which to execute the building steps, while the builder provides the implementation for those steps.
 
-Build a class for construction of computer.
+Having a director class in your program isn’t strictly necessary. You can always call the building steps in a specific order directly from the client code. However, the director class might be a good place to put various construction routines so you can reuse them across your program.
 
-```python
-# computer_regular.py
+## Structure
+1. The Builder `interface` declares product construction steps that are common to all types of builders.
+2. Concrete Builders provide different implementations of the construction steps. Concrete builders may produce products that don’t follow the common interface.
+3. Products are resulting objects. Products constructed by different builders don’t have to belong to the same class hierarchy or interface.
+4. The Director class defines the order in which to call construction steps, so you can create and reuse specific configurations of products.
+5. The `Client` must associate one of the builder objects with the director. Usually, it’s done just once, via parameters of the director’s constructor. Then the director uses that builder object for all further construction. However, there’s an alternative approach for when the client passes the builder object to the production method of the director. In this case, you can use a different builder each time you produce something with the director.
 
-class Computer(object):
+## Applicability
+- Use the Builder pattern to get rid of a “telescopic constructor”.
+- Use the Builder pattern when you want your code to be able to create different representations of some product (for example, stone and wooden houses).
+- Use the Builder to construct Composite trees or other complex objects.
 
-    def __init__(self, case, mainboard, cpu, memory, hard_drive, video_card):
-        self.case = case
-        self.mainboard = mainboard
-        self.cpu = cpu
-        self.memory = memory
-        self.hard_drive = hard_drive
-        self.video_card = video_card
+## Pros and Cons
 
-    def display(self):
-        print('Custom Computer:')
-        print('\t{:>10}: {}'.format('Case', self.case))
-        print('\t{:>10}: {}'.format('Mainboard', self.mainboard))
-        print('\t{:>10}: {}'.format('CPU', self.cpu))
-        print('\t{:>10}: {}'.format('Memory', self.memory))
-        print('\t{:>10}: {}'.format('Hard drive', self.hard_drive))
-        print('\t{:>10}: {}'.format('Video card', self.video_card))
+### Pros
+- You can construct objects step-by-step, defer construction steps or run steps recursively.
+- You can reuse the same construction code when building various representations of products.
+- Single Responsibility Principle. You can isolate complex construction code from the business logic of the product.
+#### Cons
+- The overall complexity of the code increases since the pattern requires creating multiple new classes.
 
-# in main.py
-# from computer_regular import  Computer
-
-computer = Computer(case='Coolermaster N300',
-                    mainboard='MSI 970',
-                    cpu='Intel Core i7-4770',
-                    memory='Corsair Vengeance 16GB',
-                    hard_drive='Seagate 2TB',
-                    video_card='GeForce GTX 1070'
-                    )
-
-computer.display()
-```
-
-```bash
-Custom Computer:
-              Case: Coolermaster N300
-         Mainboard: MSI 970
-               CPU: Intel Core i7-4770
-            Memory: Corsair Vengeance 16GB
-        Hard drive: Seagate 2TB
-        Video card: GeForce GTX 1070
-```
-
-This method have following problem. (Client is one who utilize the class)
-
-- Long list of parameters need to be passed to make object.
-- Class attributes must be encapsulated and not exposed for client/user to set.
-- Ordering of attribute set. We can't connect a hard drive before mother board.
-
-## Solve exposed attributes for client to setup
-
-This solved the problem of long list of parameter the client have to pass.
+## Implementation
 
 ```python
-class Computer:
+# product.py
+class Product1:
+	"""
+	It makes sense to use the Builder pattern only when your products are quite
+	complex and require extensive configuration.
 
-    def display(self):
-        print('Custom Computer:')
-        print('\t{:>10}: {}'.format('Case', self.case))
-        print('\t{:>10}: {}'.format('Mainboard', self.mainboard))
-        print('\t{:>10}: {}'.format('CPU', self.cpu))
-        print('\t{:>10}: {}'.format('Memory', self.memory))
-        print('\t{:>10}: {}'.format('Hard drive', self.hard_drive))
-        print('\t{:>10}: {}'.format('Video card', self.video_card))
+	Unlike in other creational patterns, different concrete builders can produce
+	unrelated products. In other words, results of various builders may not
+	always follow the same interface.
+	"""
 
-# in main.py
-# from computer_expose_attribute import Computer
+	def __init__(self) -> None:
+		self.parts = []
 
-class MyComputer:
+	def add(self, part) -> None:
+		self.parts.append(part)
 
-    def get_computer(self):
-        return self._computer
-
-    def build_computer(self):
-        computer = self._computer = Computer()
-        computer.case = 'Coolermaster N300'
-        computer.mainboard = 'MSI 970'
-        computer.cpu = 'Intel Core i7-4770'
-        computer.memory = 'Corsair Vengeance 16GB'
-        computer.hard_drive = 'Seagate 2TB'
-        computer.video_card = 'GeForce GTX 1070'
-
-builder = MyComputer()
-builder.build_computer()
-computer = builder.get_computer()
-computer.display()
+	def list_parts(self) -> None:
+		print(f"Product parts : {','.join(self.parts)}")
 ```
 
-This method have following problem.
-
-- Class attributes must be encapsulated and not exposed for client/user to set.
-- Ordering of attribute set. We can't connect a hard drive before mother-board.
-
-## Encapsulate the the class (which bears the attribute) in another class
-
-It solved problem of long parameter list client have to pass and also the problem where inside variables are exposed to client.
-
 ```python
-class Computer:
-
-    def display(self):
-        print('Custom Computer:')
-        print('\t{:>10}: {}'.format('Case', self.case))
-        print('\t{:>10}: {}'.format('Mainboard', self.mainboard))
-        print('\t{:>10}: {}'.format('CPU', self.cpu))
-        print('\t{:>10}: {}'.format('Memory', self.memory))
-        print('\t{:>10}: {}'.format('Hard drive', self.hard_drive))
-        print('\t{:>10}: {}'.format('Video card', self.video_card))
-
-# main.py
-# from computer_encapsulate import Computer
-
-class MyComputerBuilder(object):
-
-    def get_computer(self):
-        return self._computer
-
-    def build_computer(self):
-        self._computer = Computer()
-        self._computer.case = 'Coolermaster N300'
-        self._computer.mainboard = 'MSI 970'
-        self._computer.cpu = 'Intel Core i7-4770'
-        self._computer.memory = 'Corsair Vengeance 16GB'
-        self._computer.hard_drive = 'Seagate 2TB'
-        self._computer.video_card = 'GeForce GTX 1070'
-
-
-builder = MyComputerBuilder()
-builder.build_computer()
-computer = builder.get_computer()
-computer.display()
-```
-
-This method have following problem.
-
-- Ordering of attribute set. We can't connect a hard drive before mother-board.
-
-## Solving ordering problem by introducing class method
-
-Class method gets called in order we want to add attribute.
-
-```python
-class Computer(object):
-
-    def display(self):
-        print('Custom Computer:')
-        print('\t{:>10}: {}'.format('Case', self.case))
-        print('\t{:>10}: {}'.format('Mainboard', self.mainboard))
-        print('\t{:>10}: {}'.format('CPU', self.cpu))
-        print('\t{:>10}: {}'.format('Memory', self.memory))
-        print('\t{:>10}: {}'.format('Hard drive', self.hard_drive))
-        print('\t{:>10}: {}'.format('Video card', self.video_card))
-
-# from computer_ordering import Computer
-
-class MyComputerBuilder(object):
-
-    def get_computer(self):
-        return self._computer
-
-    def build_computer(self):
-        self._computer = Computer()
-        self.get_case()
-        self.build_mainboard()
-        self.install_mainboard()
-        self.install_hard_drive()
-        self.install_video_card()
-
-    def get_case(self):
-        self._computer.case = 'Coolermaster N300'
-     
-    def build_mainboard(self):
-        self._computer.mainboard = 'MSI 970'
-        self._computer.cpu = 'Intel Core i7-4770'
-        self._computer.memory = 'Corsair Vengeance 16GB'
-
-    def install_mainboard(self):
-        pass
-
-    def install_hard_drive(self):
-        self._computer.hard_drive = 'Seagate 2TB'
-
-    def install_video_card(self):
-        self._computer.video_card = 'GeForce GTX 1070'
-
-
-builder = MyComputerBuilder()
-builder.build_computer()
-computer = builder.get_computer()
-computer.display()
-```
-
-This method have following problem.
-
-- If we want a make a cheaper computer then we have to make another class same as `MyComputerBuilder` and we can modify the methods giving class a new name but the method like `build_computer` or `get_computer` or those which do not get modified remains same hence the code reduncency and update need to be done in all the classes which have been duplicated from this one.
-
-## Real Builder Pattern
-
-Three Parts
-
-- **AbsBuilder**: It defines **BuildPart()** which specifies how many parts need to be implement.
-- **ConcreteBuilder**: It implements the methods defined in **AbsBuilder**.
-- **Director**: It calls the **GetResult** methods in right order to ensure ordering.
-
-```python
-# computer.py
-class Computer:
-
-    def display(self):
-        print('Custom Computer:')
-        print('\t{:>10}: {}'.format('Case', self.case))
-        print('\t{:>10}: {}'.format('Mainboard', self.mainboard))
-        print('\t{:>10}: {}'.format('CPU', self.cpu))
-        print('\t{:>10}: {}'.format('Memory', self.memory))
-        print('\t{:>10}: {}'.format('Hard drive', self.hard_drive))
-        print('\t{:>10}: {}'.format('Video card', self.video_card))
-
-
 # abstract_builder.py
-
-# from computer import Computer
-from abc import ABC, abstractmethod
-
-class AbsBuilder(ABC):
-
-    def new_computer(self):
-        self._computer = Computer()
-
-    def get_computer(self):
-        return self._computer
-
-    @abstractmethod
-    def get_case(self):
-        pass
-
-    @abstractmethod
-    def install_mainboard(self):
-        pass
-
-    @abstractmethod
-    def install_hard_drive(self):
-        pass
-
-    @abstractmethod
-    def install_video_card(self):
-        pass
-
-# desktop_builder.py
-
-# from abstract_builder import AbsBuilder
-
-class DesktopBuilder(AbsBuilder):
-
-    def get_case(self, case='Coolermaster N300'):
-        self._computer.case = case
-     
-    def install_mainboard(self, 
-                        mainboard='MSI 970',
-                        cpu='Intel Core i7-4770',
-                        memory='Corsair Vengeance 16GB'
-                    ):
-        self._computer.mainboard = mainboard
-        self._computer.cpu = cpu
-        self._computer.memory = memory
-
-    def install_hard_drive(self, hard_drive='Seagate 2TB'):
-        self._computer.hard_drive = hard_drive
-
-    def install_video_card(self, video_card='GeForce GTX 1070'):
-        self._computer.video_card = video_card
+from abc import ABC, abstractmethod, abstractproperty
 
 
-# directory.py
+class Builder(ABC):
+	"""
+	The Builder interface specifies methods for creating the different parts of
+	the Product objects.
+	"""
+
+	@abstractproperty
+	def product(self) -> None:
+		pass
+
+	@abstractmethod
+	def produce_part_a(self) -> None:
+		pass
+
+	@abstractmethod
+	def produce_part_b(self) -> None:
+		pass
+
+	@abstractmethod
+	def produce_part_c(self) -> None:
+		pass
+```
+
+```python
+# concrete_builder.py
+from abstract_builder import Builder
+from product import Product1
+
+
+class ConcreteBuilder1(Builder):	
+	"""
+	The Concrete Builder classes follow the Builder interface and provide
+	specific implementations of the building steps. Your program may have
+	several variations of Builders, implemented differently.
+	"""
+	def __init__(self) -> None:
+		"""
+		A fresh builder instance should contain a blank product object, which is
+		used in further assembly.
+		"""
+		self.reset()
+
+	def reset(self) -> None:
+		self._product = Product1()
+
+	@property
+	def product(self) -> Product1:
+		"""
+		Concrete Builders are supposed to provide their own methods for
+		retrieving results. That's because various types of builders may create
+		entirely different products that don't follow the same interface.
+		Therefore, such methods cannot be declared in the base Builder interface
+		(at least in a statically typed programming language).
+
+		Usually, after returning the end result to the client, a builder
+		instance is expected to be ready to start producing another product.
+		That's why it's a usual practice to call the reset method at the end of
+		the `getProduct` method body. However, this behavior is not mandatory,
+		and you can make your builders wait for an explicit reset call from the
+		client code before disposing of the previous result.
+		"""
+		product = self._product
+		self.reset()
+		return product
+
+	def produce_part_a(self) -> None:
+		self._product.add("PartA1")
+
+	def produce_part_b(self) -> None:
+		self._product.add("PartB1")
+
+	def produce_part_c(self) -> None:
+		self._product.add("PartC1")
+```
+
+```python
+# director.py
+from abstract_builder import Builder
+
 
 class Director:
+	"""
+	The Director is only responsible for executing the building steps in a
+	particular sequence. It is helpful when producing products according to a
+	specific order or configuration. Strictly speaking, the Director class is
+	optional, since the client can control builders directly.
+	"""
+	
+	def __init__(self) -> None:
+		self._builder = None
 
-    def __init__(self, builder):
-        self._builder = builder
+	@property
+	def builder(self) -> Builder:
+		return self._builder
 
-    def build_computer(self):
-        self._builder.new_computer()
-        self._builder.get_case()
-        self._builder.install_mainboard()
-        self._builder.install_hard_drive()
-        self._builder.install_video_card()
+	@builder.setter
+	def builder(self, builder: Builder) -> None:
+		"""
+		The Director works with any builder instance that the client code passes
+		to it. This way, the client code may alter the final type of the newly
+		assembled product.
+		"""
+		self._builder = builder
+		
 
-    def get_computer(self):
-        return self._builder.get_computer()
+	"""
+	The Director can construct several product variations using the same
+	building steps.
+	"""
 
-# main.py
+	def build_minimal_viable_product(self) -> None:
+		self.builder.produce_part_a()
 
-# from director import Director
-# from desktop_builder import DesktopBuilder
-
-computer_director = Director(DesktopBuilder())
-computer_director.build_computer()
-computer = computer_director.get_computer()
-# computer here is actual object which we want to build
-computer.display()
+	def build_full_featured_product(self) -> None:
+		self.builder.produce_part_a()
+		self.builder.produce_part_b()
+		self.builder.produce_part_c()
 ```
-
-Similarly if we want another product to be build then we can do it easily using another implementation for abstract method and hence remove code duplicacy.
 
 ```python
-# laptop_builder.py
-
-# from abstract_builder import AbsBuilder
-
-class LaptopBuilder(AbsBuilder):
-
-    def get_case(self, case='IN WIN BP655'):
-        self._computer.case = case
-     
-    def install_mainboard(self, 
-                        mainboard='ASRock AM1H-ITX',
-                        cpu='AMD Athlon 5150',
-                        memory='Kingston ValueRAM 4GB'
-                    ):
-        self._computer.mainboard = mainboard
-        self._computer.cpu = cpu
-        self._computer.memory = memory
-
-    def install_hard_drive(self, hard_drive='WD Blue 1TB'):
-        self._computer.hard_drive = hard_drive
-
-    def install_video_card(self, video_card='On board'):
-        self._computer.video_card = video_card
-
-
 # main.py
+from director import Director
+from concrete_builder import ConcreteBuilder1
 
-# from director import Director
-# from laptop_builder import LaptopBuilder
 
-laptop_director = Director(LaptopBuilder())
-laptop_director.build_computer()
-laptop = laptop_director.get_computer()
-laptop.display()
+def client_code():
+	"""
+	The client code creates a builder object, passes it to the director and then
+	initiates the construction process. The end result is retrieved from the
+	builder object.
+	"""
+
+	director = Director()
+	builder = ConcreteBuilder1()
+	director.builder = builder
+	
+	print("Starndard basic product: ")
+	director.build_minimal_viable_product()	# director use builder to make MVP
+	builder.product.list_parts()
+
+	print()
+
+	print("Standard full featured product: ")
+	director.build_full_featured_product()
+	builder.product.list_parts()
+
+	print()
+
+	# Remember, the Builder pattern can be used without a Director class.
+	print("Custom product: ")
+	builder.produce_part_a()
+	builder.produce_part_b()
+	builder.product.list_parts()
+
+
+if __name__ == "__main__":
+	client_code()
 ```
-
-In case we need same builder to build same product with different specs we can control the building of product on our own instead of handeling it to director.
-
-```python
-AppleDesktop = DesktopBuilder()
-AppleDesktop.new_computer()
-AppleDesktop.get_case(case="Apple Case")
-AppleDesktop.install_mainboard(mainboard="Apple Mainboard", memory="Apple RAM")
-AppleDesktop.install_hard_drive(hard_drive="Apple SDD")
-AppleDesktop.install_video_card(video_card="Apple Video Card")
-apple_desk = AppleDesktop.get_computer()
-apple_desk.display()
-```
-
-```bash
-Custom Computer:
-              Case: Apple Case
-         Mainboard: Apple Mainboard
-               CPU: Intel Core i7-4770
-            Memory: Apple RAM
-        Hard drive: Apple SDD
-        Video card: Apple Video Card
-```
-
-## Summary
-
-- Assembly of class is seperated from components.
-- Encapsulate what varies - parts
-- Client create a director object
-- Director uses a concrete builder to complete the object
-- Builder adds parts to product

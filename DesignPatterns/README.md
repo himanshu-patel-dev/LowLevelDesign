@@ -10,7 +10,7 @@ Creational patterns provide object creation mechanisms that increase flexibility
 1. [Singleton](Singleton/README.md)
 2. Prototype - [External Link](https://refactoring.guru/design-patterns/prototype)
 3. [Factory Method](FactoryPattern/README.md)
-4. Builder
+4. [Builder](BuilderPattern/README.md)
 5. [Abstract Factory](AbstractFactoryPattern/README.md)
 
 ## Structural Patterns
