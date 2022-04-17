@@ -19,7 +19,7 @@ Structural patterns explain how to assemble objects and classes into larger stru
 1. [Adapter](Adapter/README.md)
 2. [Bridge](Bridge/README.md)
 3. [Composite](Composite/README.md)
-4. Decorator
+4. [Decorator](Decorator/README.md)
 5. Facade
 6. Flyweight
 7. [Proxy](ProxyPattern/README.md)
