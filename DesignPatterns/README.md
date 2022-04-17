@@ -20,8 +20,8 @@ Structural patterns explain how to assemble objects and classes into larger stru
 2. [Bridge](Bridge/README.md)
 3. [Composite](Composite/README.md)
 4. [Decorator](Decorator/README.md)
-5. Facade
-6. Flyweight
+5. [Facade](Fascade/README.md)
+6. Flyweight - [External Link](https://refactoring.guru/design-patterns/flyweight)
 7. [Proxy](ProxyPattern/README.md)
 
 ## Behavioral Patterns
