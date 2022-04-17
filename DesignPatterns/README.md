@@ -22,7 +22,7 @@ Structural patterns explain how to assemble objects and classes into larger stru
 4. Decorator
 5. Facade
 6. Flyweight
-7. Proxy
+7. [Proxy](ProxyPattern/README.md)
 
 ## Behavioral Patterns
 Behavioral patterns take care of effective communication and the assignment of responsibilities between objects.
