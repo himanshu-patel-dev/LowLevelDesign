@@ -15,6 +15,15 @@ The Observer pattern suggests that you add a subscription mechanism to the publi
 
 If your app has several different types of publishers and you want to make your subscribers compatible with all of them, you can go even further and make all publishers follow the same interface. This interface would only need to describe a few subscription methods. The interface would allow subscribers to observe publishers’ states without coupling to their concrete classes.
 
+## Applicability
+-  Use the Observer pattern when changes to the state of one object may require changing other objects, and the actual set of objects is unknown beforehand or changes dynamically.
+- Use the pattern when some objects in your app must observe others, but only for a limited time or in specific cases.
+
+## Pros
+- Open/Closed Principle. You can introduce new subscriber classes without having to change the publisher’s code (and vice versa if there’s a publisher interface).
+- You can establish relations between objects at runtime.
+## Cons
+- Subscribers are notified in random order.
 
 ## Implementation
 
