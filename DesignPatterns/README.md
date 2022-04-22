@@ -34,8 +34,8 @@ Behavioral patterns take care of effective communication and the assignment of r
 5. Template Method
 6. Command
 7. Mediator
-8. Observer
-9. Strategy
+8. [Observer](Observer/README.md)
+9. [Strategy](Strategy_Pattern/README.md)
 10. Visitor
 
 Thanks to Refactoring Guru Website: [Reach out to them for more](https://refactoring.guru/design-patterns/catalog)
