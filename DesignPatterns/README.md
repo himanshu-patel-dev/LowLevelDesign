@@ -28,7 +28,7 @@ Structural patterns explain how to assemble objects and classes into larger stru
 Behavioral patterns take care of effective communication and the assignment of responsibilities between objects.
 
 1. Chain of responsibility
-2. Iterator
+2. [Iterator](Iterator/README.md)
 3. Memento
 4. State
 5. Template Method
