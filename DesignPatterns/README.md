@@ -30,9 +30,9 @@ Behavioral patterns take care of effective communication and the assignment of r
 1. Chain of responsibility
 2. [Iterator](Iterator/README.md)
 3. Memento
-4. State
+4. [State](State/README.md)
 5. Template Method
-6. Command
+6. [Command](Command/README.md)
 7. Mediator
 8. [Observer](Observer/README.md)
 9. [Strategy](Strategy_Pattern/README.md)
