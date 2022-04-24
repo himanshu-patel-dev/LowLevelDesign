@@ -31,7 +31,7 @@ Behavioral patterns take care of effective communication and the assignment of r
 2. [Iterator](Iterator/README.md)
 3. Memento
 4. [State](State/README.md)
-5. Template Method
+5. [Template Method](Template/README.md)
 6. [Command](Command/README.md)
 7. Mediator
 8. [Observer](Observer/README.md)
