@@ -33,7 +33,7 @@ Behavioral patterns take care of effective communication and the assignment of r
 4. [State](State/README.md)
 5. [Template Method](Template/README.md)
 6. [Command](Command/README.md)
-7. Mediator
+7. [Mediator](Mediator/README.md)
 8. [Observer](Observer/README.md)
 9. [Strategy](Strategy_Pattern/README.md)
 10. Visitor
