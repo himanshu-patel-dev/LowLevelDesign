@@ -29,13 +29,13 @@ Behavioral patterns take care of effective communication and the assignment of r
 
 1. Chain of responsibility
 2. [Iterator](Iterator/README.md)
-3. Memento
+3. Memento - [External Link](https://refactoring.guru/design-patterns/memento)
 4. [State](State/README.md)
 5. [Template Method](Template/README.md)
 6. [Command](Command/README.md)
 7. [Mediator](Mediator/README.md)
 8. [Observer](Observer/README.md)
 9. [Strategy](Strategy_Pattern/README.md)
-10. Visitor
+10. Visitor - [External Linke](https://refactoring.guru/design-patterns/visitor)
 
-Thanks to Refactoring Guru Website: [Reach out to them for more](https://refactoring.guru/design-patterns/catalog)
+Thanks to **Refactoring Guru Website**: [Reach out to them for more](https://refactoring.guru/design-patterns/catalog)
